@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -12,6 +13,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,9 +35,49 @@ class MainActivity : AppCompatActivity() {
     private var searchDataList = mutableListOf<SearchData>()
     private var savedSearchList = mutableListOf<String>()
 
+    private val Authorization = "KakaoAK ${BuildConfig.KAKAO_REST_API_KEY}"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val retrofitService = Retrofit.Builder()
+            .baseUrl("https://dapi.kakao.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RetrofitService::class.java)
+
+        val category_group_code = "PM9"
+        val x = "127.05897078335246"
+        val y = "37.506051888130386"
+        val radius = 20000
+        val format = "json"
+
+        retrofitService.requestProducts(
+            Authorization,
+            format,
+            category_group_code,
+            x,
+            y,
+            radius
+
+        ).enqueue(object : Callback<KakaoData> {
+            override fun onResponse(
+                call: Call<KakaoData>,
+                response: Response<KakaoData>
+            ) {
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    Log.d("Retrofit", "API 요청 성공, body: $body")
+                }else{
+                    Log.e("Retrofit", "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<KakaoData>, t: Throwable) {
+                Log.e("Retrofit", "API 요청 실패, 네트워크 에러: ${t.message}")
+            }
+        })
 
         db = SearchDbHelper(context = this)
 
