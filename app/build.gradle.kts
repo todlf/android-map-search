@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,10 +17,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        resValue("string", "kakao_api_key", getApiKey("KAKAO_API_KEY"))
+        buildConfigField("String", "KAKAO_REST_API_KEY", getApiKey("KAKAO_REST_API_KEY"))
     }
 
     buildFeatures{
         dataBinding = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -43,6 +49,8 @@ android {
     }
 }
 
+fun getApiKey(key: String): String = gradleLocalProperties(rootDir, providers).getProperty(key)
+
 dependencies {
 
     implementation("androidx.core:core-ktx:1.12.0")
@@ -59,3 +67,4 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }
+
