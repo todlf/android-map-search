@@ -41,44 +41,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val retrofitService = Retrofit.Builder()
-            .baseUrl("https://dapi.kakao.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(RetrofitService::class.java)
-
-        val category_group_code = "PM9"
-        val x = "127.05897078335246"
-        val y = "37.506051888130386"
-        val radius = 20000
-        val format = "json"
-
-        retrofitService.requestProducts(
-            Authorization,
-            format,
-            category_group_code,
-            x,
-            y,
-            radius
-
-        ).enqueue(object : Callback<KakaoData> {
-            override fun onResponse(
-                call: Call<KakaoData>,
-                response: Response<KakaoData>
-            ) {
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    Log.d("Retrofit", "API 요청 성공, body: $body")
-                }else{
-                    Log.e("Retrofit", "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}")
-                }
-            }
-
-            override fun onFailure(call: Call<KakaoData>, t: Throwable) {
-                Log.e("Retrofit", "API 요청 실패, 네트워크 에러: ${t.message}")
-            }
-        })
-
         db = SearchDbHelper(context = this)
 
         recyclerView = findViewById(R.id.recyclerView)
@@ -137,19 +99,87 @@ class MainActivity : AppCompatActivity() {
 
         val values = ContentValues()
 
-        for (count in 1 until 21) {
-            values.put(SearchData.TABLE_COLUMN_NAME, "카페$count")
-            values.put(SearchData.TABLE_COLUMN_ADDRESS, "서울 성동구 성수동 $count")
-            values.put(SearchData.TABLE_COLUMN_CATEGORY, "카페")
-            wDb.insert(SearchData.TABLE_NAME, null, values)
+        val retrofitService = Retrofit.Builder()
+            .baseUrl("https://dapi.kakao.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RetrofitService::class.java)
 
-            values.put(SearchData.TABLE_COLUMN_NAME, "약국$count")
-            values.put(SearchData.TABLE_COLUMN_ADDRESS, "서울 강남구 대치동 $count")
-            values.put(SearchData.TABLE_COLUMN_CATEGORY, "약국")
-            wDb.insert(SearchData.TABLE_NAME, null, values)
+        var category_group_code = "PM9"
+        val x = "127.05897078335246"
+        val y = "37.506051888130386"
+        val radius = 20000
+        val format = "json"
 
-            values.clear()
-        }
+        retrofitService.requestProducts(
+            Authorization,
+            format,
+            category_group_code,
+            x,
+            y,
+            radius
+
+        ).enqueue(object : Callback<KakaoData> {
+            override fun onResponse(
+                call: Call<KakaoData>,
+                response: Response<KakaoData>
+            ) {
+                if (response.isSuccessful) {
+                    val kakaoData = response.body()
+                    kakaoData?.documents?.forEachIndexed { index, document ->
+                        val placeName = document.place_name
+                        val addressName = document.address_name
+                        values.put(SearchData.TABLE_COLUMN_NAME, placeName)
+                        values.put(SearchData.TABLE_COLUMN_ADDRESS, addressName)
+                        values.put(SearchData.TABLE_COLUMN_CATEGORY, "약국")
+                        wDb.insert(SearchData.TABLE_NAME, null, values)
+                        values.clear()
+                    }
+                }else{
+                    Log.e("Retrofit", "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<KakaoData>, t: Throwable) {
+                Log.e("Retrofit", "API 요청 실패, 네트워크 에러: ${t.message}")
+            }
+        })
+
+        category_group_code = "CE7"
+
+        retrofitService.requestProducts(
+            Authorization,
+            format,
+            category_group_code,
+            x,
+            y,
+            radius
+
+        ).enqueue(object : Callback<KakaoData> {
+            override fun onResponse(
+                call: Call<KakaoData>,
+                response: Response<KakaoData>
+            ) {
+                if (response.isSuccessful) {
+                    val kakaoData = response.body()
+                    kakaoData?.documents?.forEachIndexed { index, document ->
+                        val placeName = document.place_name
+                        val addressName = document.address_name
+                        values.put(SearchData.TABLE_COLUMN_NAME, placeName)
+                        values.put(SearchData.TABLE_COLUMN_ADDRESS, addressName)
+                        values.put(SearchData.TABLE_COLUMN_CATEGORY, "카페")
+                        wDb.insert(SearchData.TABLE_NAME, null, values)
+                        values.clear()
+                    }
+                }else{
+                    Log.e("Retrofit", "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<KakaoData>, t: Throwable) {
+                Log.e("Retrofit", "API 요청 실패, 네트워크 에러: ${t.message}")
+            }
+        })
     }
 
     private fun loadDb() {
@@ -228,9 +258,6 @@ class MainActivity : AppCompatActivity() {
         adapter.setItemClickListener(object : SearchAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
                 val searchData = adapter.searchDataList[position]
-                Toast.makeText(this@MainActivity, "Clicked: ${searchData.name}", Toast.LENGTH_SHORT)
-                    .show()
-
                 val wDb = db.writableDatabase
                 val values = ContentValues()
 
@@ -249,9 +276,6 @@ class MainActivity : AppCompatActivity() {
             SavedSearchAdapter.OnDeleteClickListener {
             override fun onDeleteClick(position: Int) {
                 val deletedWord = savedSearchAdapter.savedSearchList[position]
-                Toast.makeText(this@MainActivity, "Deleted: $deletedWord", Toast.LENGTH_SHORT)
-                    .show()
-
                 val wDb = db.writableDatabase
                 wDb.delete(
                     SearchData.SAVED_SEARCH_TABLE_NAME,
