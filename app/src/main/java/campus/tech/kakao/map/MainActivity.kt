@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -75,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         loadDb()
         loadSavedWords()
 
+
         searchWord.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -93,6 +93,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveDb() {
+
         val wDb = db.writableDatabase
 
         wDb.delete(SearchData.TABLE_NAME, null, null)
@@ -129,9 +130,10 @@ class MainActivity : AppCompatActivity() {
                     kakaoData?.documents?.forEachIndexed { index, document ->
                         val placeName = document.place_name
                         val addressName = document.address_name
+                        val categoryGroupName = document.categoryGroupName
                         values.put(SearchData.TABLE_COLUMN_NAME, placeName)
                         values.put(SearchData.TABLE_COLUMN_ADDRESS, addressName)
-                        values.put(SearchData.TABLE_COLUMN_CATEGORY, "약국")
+                        values.put(SearchData.TABLE_COLUMN_CATEGORY, categoryGroupName)
                         wDb.insert(SearchData.TABLE_NAME, null, values)
                         values.clear()
                     }
@@ -165,21 +167,25 @@ class MainActivity : AppCompatActivity() {
                     kakaoData?.documents?.forEachIndexed { index, document ->
                         val placeName = document.place_name
                         val addressName = document.address_name
+                        val categoryGroupName = document.categoryGroupName
                         values.put(SearchData.TABLE_COLUMN_NAME, placeName)
                         values.put(SearchData.TABLE_COLUMN_ADDRESS, addressName)
-                        values.put(SearchData.TABLE_COLUMN_CATEGORY, "카페")
+                        values.put(SearchData.TABLE_COLUMN_CATEGORY, categoryGroupName)
                         wDb.insert(SearchData.TABLE_NAME, null, values)
                         values.clear()
                     }
                 }else{
                     Log.e("Retrofit", "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}")
                 }
+                loadDb()
             }
 
             override fun onFailure(call: Call<KakaoData>, t: Throwable) {
                 Log.e("Retrofit", "API 요청 실패, 네트워크 에러: ${t.message}")
             }
         })
+
+
     }
 
     private fun loadDb() {
@@ -198,7 +204,6 @@ class MainActivity : AppCompatActivity() {
             null,
             null
         )
-
         searchDataList.clear()
 
         with(cursor) {
@@ -207,6 +212,7 @@ class MainActivity : AppCompatActivity() {
                 val address = getString(getColumnIndexOrThrow(SearchData.TABLE_COLUMN_ADDRESS))
                 val category = getString(getColumnIndexOrThrow(SearchData.TABLE_COLUMN_CATEGORY))
                 searchDataList.add(SearchData(name, address, category))
+                Log.e("Retrofit", "SearchDataList 찾기: ${searchDataList}")
             }
         }
         cursor.close()
@@ -222,6 +228,7 @@ class MainActivity : AppCompatActivity() {
             searchNothing.visibility = View.GONE
             savedSearchWordRecyclerView.visibility = View.VISIBLE
         }
+        Log.e("Retrofit", "SearchDataList 찾기1: ${searchDataList}")
         adapter.notifyDataSetChanged()
     }
 
