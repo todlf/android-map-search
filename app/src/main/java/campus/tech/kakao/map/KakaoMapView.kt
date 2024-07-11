@@ -1,12 +1,10 @@
 package campus.tech.kakao.map
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.RecyclerView
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
@@ -17,6 +15,7 @@ import com.kakao.sdk.common.util.Utility
 class KakaoMapView : AppCompatActivity() {
 
     private lateinit var map_view: MapView
+    private lateinit var searchButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +28,7 @@ class KakaoMapView : AppCompatActivity() {
         Log.d("testt", keyHash)
 
         map_view = findViewById(R.id.map_view)
+        searchButton = findViewById(R.id.searchButton)
 
         map_view.start(object : MapLifeCycleCallback() {
             override fun onMapDestroy() {
@@ -43,6 +43,12 @@ class KakaoMapView : AppCompatActivity() {
                 // 인증 후 API 가 정상적으로 실행될 때 호출됨
             }
         })
+
+        searchButton.setOnClickListener {
+            Intent(this, MainActivity::class.java).let {
+                startActivity(it)
+            }
+        }
     }
 
     override fun onResume() {
