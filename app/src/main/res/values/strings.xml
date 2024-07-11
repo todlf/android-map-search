@@ -5,4 +5,5 @@
     <string name="name">"이름"</string>
     <string name="address">"주소"</string>
     <string name="category">"카테고리"</string>
+    <string name="enter_search">"검색어를 입력해 주세요."</string>
 </resources>
