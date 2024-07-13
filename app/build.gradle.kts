@@ -27,6 +27,10 @@ android {
         buildConfig = true
     }
 
+    buildFeatures{
+        dataBinding = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

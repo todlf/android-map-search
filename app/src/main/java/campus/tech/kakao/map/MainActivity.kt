@@ -18,6 +18,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -73,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         saveDb()
         loadDb()
         loadSavedWords()
-
 
         searchWord.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -185,7 +185,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-
     }
 
     private fun loadDb() {
@@ -204,6 +203,7 @@ class MainActivity : AppCompatActivity() {
             null,
             null
         )
+
         searchDataList.clear()
 
         with(cursor) {
@@ -213,6 +213,7 @@ class MainActivity : AppCompatActivity() {
                 val category = getString(getColumnIndexOrThrow(SearchData.TABLE_COLUMN_CATEGORY))
                 searchDataList.add(SearchData(name, address, category))
                 Log.e("Retrofit", "SearchDataList 찾기: ${searchDataList}")
+
             }
         }
         cursor.close()
@@ -267,7 +268,6 @@ class MainActivity : AppCompatActivity() {
                 val searchData = adapter.searchDataList[position]
                 val wDb = db.writableDatabase
                 val values = ContentValues()
-
                 values.put(SearchData.SAVED_SEARCH_COLUMN_NAME, searchData.name)
                 wDb.insert(SearchData.SAVED_SEARCH_TABLE_NAME, null, values)
                 values.clear()
