@@ -13,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -72,9 +74,10 @@ class MainActivity : AppCompatActivity() {
 
         itemClickSaveWord()
         deleteItem()
-        showDb()
-        deleteWord()
+
         saveData()
+        loadData()
+        deleteWord()
         loadSavedWords()
 
 
@@ -99,33 +102,34 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveData() {
         lifecycleScope.launch {
-            try {
-                db.saveDb(Authorization)
-            } catch (e: Exception) {
-                // 예외 처리
-                e.printStackTrace()
+            db.saveDb(Authorization)
+            loadData()
+        }
+    }
+
+    private fun loadData() {
+        lifecycleScope.launch {
+            searchDataList = withContext(Dispatchers.IO) {
+                db.loadDb().toMutableList()
             }
+            showDb()
         }
     }
 
     private fun showDb() {
-        lifecycleScope.launch {
-            searchDataList = db.loadDb().toMutableList()
-
-            if (searchWord.text.isEmpty()) {
-                adapter.searchDataList = emptyList()
-                recyclerView.visibility = View.GONE
-                searchNothing.visibility = View.VISIBLE
-                savedSearchWordRecyclerView.visibility = View.GONE
-            } else {
-                adapter.searchDataList = searchDataList
-                recyclerView.visibility = View.VISIBLE
-                searchNothing.visibility = View.GONE
-                savedSearchWordRecyclerView.visibility = View.VISIBLE
-            }
-            Log.e("Retrofit", "SearchDataList 찾기1: ${searchDataList}")
-            adapter.notifyDataSetChanged()
+        if (searchWord.text.isEmpty()) {
+            adapter.searchDataList = emptyList()
+            recyclerView.visibility = View.GONE
+            searchNothing.visibility = View.VISIBLE
+            savedSearchWordRecyclerView.visibility = View.GONE
+        } else {
+            adapter.searchDataList = searchDataList
+            recyclerView.visibility = View.VISIBLE
+            searchNothing.visibility = View.GONE
+            savedSearchWordRecyclerView.visibility = View.VISIBLE
         }
+        Log.e("Retrofit", "SearchDataList 찾기1: $searchDataList")
+        adapter.notifyDataSetChanged()
     }
 
     private fun deleteWord() {
