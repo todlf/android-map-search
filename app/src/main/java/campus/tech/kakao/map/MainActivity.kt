@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         deleteItem()
         showDb()
         deleteWord()
-
+        saveData()
         loadSavedWords()
 
 
@@ -101,7 +101,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 db.saveDb(Authorization)
-                showDb()
             } catch (e: Exception) {
                 // 예외 처리
                 e.printStackTrace()

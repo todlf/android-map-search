@@ -139,6 +139,7 @@ class SearchDbHelper(context: Context) : SQLiteOpenHelper(context, "searchDb", n
                 }else{
                     Log.e("Retrofit", "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}")
                 }
+
             }
 
             override fun onFailure(call: Call<KakaoData>, t: Throwable) {
