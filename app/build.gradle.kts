@@ -34,10 +34,6 @@ android {
         buildConfig = true
     }
 
-    buildFeatures{
-        dataBinding = true
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -72,7 +68,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    //implementation("com.kakao.maps.open:android:2.9.5")
+    implementation("com.kakao.maps.open:android:2.9.5")
     implementation("androidx.activity:activity:1.8.0")
     implementation("com.kakao.sdk:v2-all:2.20.3")
     testImplementation("junit:junit:4.13.2")
