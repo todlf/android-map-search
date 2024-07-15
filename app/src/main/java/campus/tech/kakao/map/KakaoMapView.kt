@@ -14,7 +14,7 @@ import com.kakao.sdk.common.util.Utility
 
 class KakaoMapView : AppCompatActivity() {
 
-    private lateinit var map_view: MapView
+    private lateinit var mapView: MapView
     private lateinit var searchButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,10 +27,10 @@ class KakaoMapView : AppCompatActivity() {
         var keyHash = Utility.getKeyHash(this)
         Log.d("testt", keyHash)
 
-        map_view = findViewById(R.id.map_view)
+        mapView = findViewById(R.id.mapView)
         searchButton = findViewById(R.id.searchButton)
 
-        map_view.start(object : MapLifeCycleCallback() {
+        mapView.start(object : MapLifeCycleCallback() {
             override fun onMapDestroy() {
                 // 지도 API 가 정상적으로 종료될 때 호출됨
             }
@@ -45,7 +45,7 @@ class KakaoMapView : AppCompatActivity() {
         })
 
         searchButton.setOnClickListener {
-            Intent(this, MainActivity::class.java).let {
+            Intent(this, SearchActivity::class.java).let {
                 startActivity(it)
             }
         }
@@ -53,11 +53,11 @@ class KakaoMapView : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        map_view.resume()
+        mapView.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        map_view.pause()
+        mapView.pause()
     }
 }

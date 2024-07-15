@@ -8,9 +8,9 @@ import retrofit2.http.Query
 interface RetrofitService {
     @GET("v2/local/search/category.{format}")
     fun requestProducts(
-        @Header("Authorization") Authorization: String,
+        @Header("Authorization") authorization: String,
         @Path("format") format: String,
-        @Query("category_group_code") category_group_code: String,
+        @Query("category_group_code") categoryGroupCode: String,
         @Query("x") x: String,
         @Query("y") y: String,
         @Query("radius") radius: Int

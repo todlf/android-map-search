@@ -60,11 +60,8 @@ class SearchDbHelper(context: Context) : SQLiteOpenHelper(context, "searchDb", n
         return savedWords
     }
 
-    suspend fun saveDb(Authorization: String) {
+    suspend fun fetchApi(authorization: String) {
         withContext(Dispatchers.IO) {
-            val wDb = writableDatabase
-            wDb.delete(SearchData.TABLE_NAME, null, null)
-            val values = ContentValues()
 
             val retrofitService = Retrofit.Builder()
                 .baseUrl("https://dapi.kakao.com/")
@@ -79,38 +76,44 @@ class SearchDbHelper(context: Context) : SQLiteOpenHelper(context, "searchDb", n
             val format = "json"
 
             for (categoryGroupCode in categoryGroupCodes) {
+                try {
+                    val response = retrofitService.requestProducts(
+                        authorization,
+                        format,
+                        categoryGroupCode,
+                        x,
+                        y,
+                        radius
+                    ).awaitResponse()
 
-                val response = retrofitService.requestProducts(
-                    Authorization,
-                    format,
-                    categoryGroupCode,
-                    x,
-                    y,
-                    radius
-                ).awaitResponse()
+                    if (response.isSuccessful) {
+                        val kakaoData = response.body()
+                        kakaoData?.documents?.forEach { document ->
+                            val placeName = document.placeName
+                            val addressName = document.addressName
+                            val categoryGroupName = document.categoryGroupName
 
-                if (response.isSuccessful) {
-                    val kakaoData = response.body()
-                    kakaoData?.documents?.forEach { document ->
-                        val placeName = document.place_name
-                        val addressName = document.address_name
-                        val categoryGroupName = document.categoryGroupName
-                        values.put(SearchData.TABLE_COLUMN_NAME, placeName)
-                        values.put(SearchData.TABLE_COLUMN_ADDRESS, addressName)
-                        values.put(SearchData.TABLE_COLUMN_CATEGORY, categoryGroupName)
-                        wDb.insert(SearchData.TABLE_NAME, null, values)
-                        values.clear()
+                            saveDb(placeName, addressName, categoryGroupName)
+                        }
+                    } else {
+                        Log.e("Retrofit", "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}")
                     }
-                } else {
-                    Log.e(
-                        "Retrofit",
-                        "API 요청 실패, 응답 코드: ${response.code()}, 메시지: ${response.message()}"
-                    )
+                } catch (e: Exception) {
+                    Log.e("Retrofit", "API 요청 실패, 네트워크 에러: ${e.message}")
                 }
             }
-
-            loadDb()
         }
+    }
+
+    fun saveDb(placeName: String, addressName: String, categoryGroupName: String) {
+        val wDb = writableDatabase
+        val values = ContentValues()
+
+        values.put(SearchData.TABLE_COLUMN_NAME, placeName)
+        values.put(SearchData.TABLE_COLUMN_ADDRESS, addressName)
+        values.put(SearchData.TABLE_COLUMN_CATEGORY, categoryGroupName)
+        wDb.insert(SearchData.TABLE_NAME, null, values)
+        values.clear()
     }
 
     fun loadDb(): List<SearchData> {

@@ -16,13 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class MainActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SearchAdapter
@@ -38,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private var searchDataList = mutableListOf<SearchData>()
     private var savedSearchList = mutableListOf<String>()
 
-    private val Authorization = "KakaoAK ${BuildConfig.KAKAO_REST_API_KEY}"
+    private val authorization = "KakaoAK ${BuildConfig.KAKAO_REST_API_KEY}"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,13 +67,11 @@ class MainActivity : AppCompatActivity() {
 
         savedSearchWordRecyclerView.adapter = savedSearchAdapter
 
-        itemClickSaveWord()
-        deleteItem()
+        initView()
 
         saveData()
         loadData()
-        deleteWord()
-        loadSavedWords()
+
 
 
         searchWord.addTextChangedListener(object : TextWatcher {
@@ -102,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveData() {
         lifecycleScope.launch {
-            db.saveDb(Authorization)
+            db.fetchApi(authorization)
             loadData()
         }
     }
@@ -195,6 +188,13 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
+    }
+
+    private fun initView() {
+        itemClickSaveWord()
+        deleteItem()
+        deleteWord()
+        loadSavedWords()
     }
 
 }

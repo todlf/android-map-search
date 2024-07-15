@@ -16,11 +16,11 @@ data class Meta(
 )
 
 data class Document(
-    @SerializedName("place_name") val place_name: String,
+    @SerializedName("place_name") val placeName: String,
     val distance: String,
     val place_url: String,
     val category_name: String,
-    @SerializedName("address_name") val address_name: String,
+    @SerializedName("address_name") val addressName: String,
     val road_address_name: String,
     val id: String,
     val phone: String,
